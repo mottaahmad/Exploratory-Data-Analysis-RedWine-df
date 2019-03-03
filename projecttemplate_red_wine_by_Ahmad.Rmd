@@ -1,0 +1,731 @@
+Red Wine Quality by Ahmad Almutawa
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Load all of the packages that you end up using in your analysis in this code
+# chunk.
+
+
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk. This
+# prevents the code from displaying in the knitted HTML output. You should set
+# echo=FALSE for all code chunks in your file, unless it makes sense for your
+# report to show the code that generated a particular plot.
+
+# The other parameters for "message" and "warning" should also be set to FALSE
+# for other code chunks once you have verified that each plot comes out as you
+# want it to. This will clean up the flow of your report.
+
+library(ggplot2)
+library("dplyr")
+library(pander)
+library(ggthemes)
+library(gridExtra)
+library(corrplot)
+library(tidyr)
+```
+
+```{r echo=FALSE,}
+
+setwd("C:/Users/Emanice/Desktop/UDACITY - DAND/Project 5 R/Project 5")
+
+rwine <- read.csv("wineQualityReds.csv")
+
+# Load the Data
+
+```
+
+This tidy data set contains 1,599 red wines with 11 variables on the chemical 
+properties of the wine. At least 3 wine experts rated the quality of each wine, 
+providing a rating between 0 (very bad) and 10 (very excellent).
+The data set contains 1599 number of observations with 13 variables as follows:
+
+1 - fixed acidity: most acids involved with wine or fixed or nonvolatile (do 
+not evaporate readily)
+
+2 - volatile acidity: the amount of acetic acid in wine, which at too high of 
+levels can lead to an unpleasant, vinegar taste
+
+3 - citric acid: found in small quantities, citric acid can add 'freshness' and 
+flavor to wines
+
+4 - residual sugar: the amount of sugar remaining after fermentation stops, 
+it's rare to find wines with less than 1 gram/liter and wines with greater than
+45 grams/liter are considered sweet
+
+5 - chlorides: the amount of salt in the wine
+
+6 - free sulfur dioxide: the free form of SO2 exists in equilibrium between
+molecular SO2 (as a dissolved gas) and bisulfite ion; it prevents microbial
+growth and the oxidation of wine
+
+7 - total sulfur dioxide: amount of free and bound forms of S02; in low
+concentrations, SO2 is mostly undetectable in wine, but at free SO2
+concentrations over 50 ppm, SO2 becomes evident in the nose and taste of wine
+
+8 - density: the density of water is close to that of water depending on the
+percent alcohol and sugar content
+
+9 - pH: describes how acidic or basic a wine is on a scale from 0 (very acidic)
+to 14 (very basic); most wines are between 3-4 on the pH scale
+
+10 - sulphates: a wine additive which can contribute to sulfur dioxide gas (S02)
+levels, wich acts as an antimicrobial and antioxidant
+
+11 - alcohol: the percent alcohol content of the wine Output variable (based on
+sensory data)
+
+12 - quality (score between 0 and 10)
+
+Please note that the first column (x) is just the rows numbers
+
+# Univariate Plots Section
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# Exploring the data set
+str(rwine)
+summary(rwine)
+
+
+
+rwine$X = factor(rwine$X)
+# Changing the variable for row numbers to factor
+
+theme_set(theme_minimal(24))
+# Setting the theme for better graphing
+
+summary(rwine$fixed.acidity)
+
+p1 <- ggplot(aes(x = fixed.acidity), data = rwine) +
+  geom_histogram(binwidth = .1) +
+  scale_x_continuous(breaks = seq(4 , 20 , 1)) +
+  scale_y_continuous(breaks = seq(0 , 100 , 5))
+
+p1
+
+```  
+
+The graph seems to start from 4 to 16 where the mean and the median are both
+between 7 to 9. This seems like a normal distribution but a little bit skewed
+to the left side
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$volatile.acidity)
+
+p2 <- ggplot(aes(x = volatile.acidity), data = rwine) +
+  geom_histogram(binwidth = .01) +
+  scale_x_continuous(breaks = seq(0 , 2 , .1)) +
+  scale_y_continuous(breaks = seq(0 , 75 , 10))
+
+p2
+
+```  
+
+The graph seems to start from 0 to 2 where the mean and the median are both
+between 0.5 to 0.6 . There are some clear outliers after 1.15 till 1.6
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$citric.acid)
+
+p3 <- ggplot(aes(x = citric.acid), data = rwine) +
+    geom_histogram(binwidth = .01) +
+    scale_x_continuous(breaks = seq(0 , 1 , .1)) +
+    scale_y_continuous(breaks = seq(0 , 200 , 10))
+
+p3
+ 
+```
+ 
+This graph seems to start from 0 to 1 where the mean and the median are both
+between 0.25 to 0.3 . There is one outlier at 1
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(rwine$residual.sugar)
+
+p4 <- ggplot(aes(x = residual.sugar), data = rwine) +
+  geom_histogram(binwidth = .1) +
+  scale_x_continuous(breaks = seq(0 , 20 , 1)) +
+  scale_y_continuous(breaks = seq(0 , 200 , 10))
+
+p4
+
+```
+
+This graph seems to start from 0 to 16. It's clearly left skewered and
+outliers starts to show after 10.5
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$chlorides)
+ 
+p5 <- ggplot(aes(x = chlorides), data = rwine) +
+  geom_histogram(binwidth = .005) +
+  scale_x_continuous(breaks = seq(0 , 1 , .1)) +
+  scale_y_continuous(breaks = seq(0 , 300 , 25))
+
+p5
+
+```
+
+This graph seems to start from 0 to 0.7 . It's clearly left skewered as the
+3rd quartile is at 0.09 . 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$free.sulfur.dioxide)
+ 
+p6 <- ggplot(aes(x = free.sulfur.dioxide), data = rwine) +
+  geom_histogram(binwidth = .5) +
+  scale_x_continuous(breaks = seq(0 , 100 , 5)) +
+  scale_y_continuous(breaks = seq(0 , 150 , 10))
+
+
+
+p6
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+sort(rwine$free.sulfur.dioxide)
+
+```
+ 
+This graph is also left skewered with outliers after 65 . it's worth to
+mention that the graph shows some between bars as it seems there is only one
+decimal value (5.5) in this variable from 0 until the 3rd quartile
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$total.sulfur.dioxide)
+ 
+p7 <- ggplot(aes(x = total.sulfur.dioxide), data = rwine) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks = seq(0 , 300 , 25)) +
+  scale_y_continuous(breaks = seq(0 , 50 , 5))
+
+p7
+
+```
+
+Another left skewered with 2 outliers from  275 to 300 . The median and mean
+are located from 35 to 50
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$density)
+
+p8 <- ggplot(aes(x = density), data = rwine) +
+  geom_histogram(binwidth = .0001) +
+  scale_x_continuous(breaks = seq(0 , 2 , .1)) +
+  scale_y_continuous(breaks = seq(0 , 50 , 5))
+
+p8
+
+```
+
+This graph seems to be normally distributed and all values are located
+between 0.9901 and 1.0037
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$pH)
+
+p9 <- ggplot(aes(x = pH), data = rwine) +
+  geom_histogram(binwidth = .01) +
+  scale_x_continuous(breaks = seq(0 , 5 , .1)) +
+  scale_y_continuous(breaks = seq(0 , 75 , 5))
+
+p9
+
+```
+ 
+This graph seems to be also normally distributed especially if we exclude the
+outliers
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+
+summary(rwine$sulphates)
+
+p10 <- ggplot(aes(x = sulphates), data = rwine) +
+  geom_histogram(binwidth = .01) +
+  scale_x_continuous(breaks = seq(0 , 5 , .2)) +
+  scale_y_continuous(breaks = seq(0 , 75 , 5))
+
+p10
+
+```
+  
+A left skewered graph and clear outliers from 1.4 to 2.0 .
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$alcohol)
+
+p11 <- ggplot(aes(x = alcohol), data = rwine) +
+  geom_histogram(binwidth = .075) +
+  scale_x_continuous(breaks = seq(0 , 20 , 1)) +
+  scale_y_continuous(breaks = seq(0 , 200 , 10))
+
+p11
+
+```
+
+The graph seems to start from 8.4 to 14.9 where the mean and the median are
+both between 10 and 10.5 . This seems like a bit of a left skewered
+distribution. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+summary(rwine$quality)
+ 
+p12 <- ggplot(aes(x = quality), data = rwine) +
+   geom_histogram(binwidth = .5, fill = '#5760AB') +
+   scale_x_continuous(breaks = seq(0 , 10 , 1)) +
+   scale_y_continuous(breaks = seq(0 , 750 , 50))
+
+p12
+
+```
+
+Although the rating options are from 1 to 10. However all the observations of
+this variable is located in 3-8 where the mean and median are in the middle
+5-6
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+grid.arrange(p1 , p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, ncol =3)
+
+```
+
+Showing the 12 graphs altogether
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+rwine$quality <- factor(rwine$quality, ordered = T)
+
+
+rwine$rating <- ifelse(rwine$quality < 5, 'bad', ifelse(
+  rwine$quality < 7, 'average', 'good'))
+
+rwine$rating <- ordered(rwine$rating,
+                       levels = c('bad', 'average', 'good'))
+
+
+ggplot(aes(x = rating), data = rwine) +
+  stat_count(width = 1, color = 'black',fill = I('blue'))
+
+```
+  
+The graph shows that most rating for wine quality are average
+
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+1,599 red wines with 12 variables and I added extra variable which is Rating and this variable is based on  the variable quality
+
+### What is/are the main feature(s) of interest in your dataset?
+Quality and rating
+
+### What other features in the dataset do you think will help support your \investigation into your feature(s) of interest?
+pH, alcohol and fixed acidity
+
+### Did you create any new variables from existing variables in the dataset?
+yes I created "rating" variable from "quality"
+
+### Of the features you investigated, were there any unusual distributions?
+Most of the variables have outliers.
+
+### Did you perform any operations on the data to tidy, adjust, or change the form \ of the data? If so, why did you do this?
+Yes, I used breaks to make the graphs show all observations of the variables
+
+
+# Bivariate Plots Section
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+
+rwinecorr <- cor(rwine %>%
+    dplyr::select(-X) %>%
+    dplyr::select(-rating) %>%
+    mutate(quality = as.numeric(quality)))
+# Since we don't want to include the variable X in the graph, we removed it as 
+# well as removing rating as it's a categorical variable. Moreover, we
+# transferred quality to numeric again as this method only accepts numeric 
+# variables
+
+corrplot(rwinecorr, method="number")
+
+```
+
+From the correaltion matrix, we can see that there are no strong relations 
+between any of the variables. Moreover, there are moderate positive 
+correlations between some of the variables like citric acid & fixed acidity, 
+density & fixed acidity, fixed acidity & citric acid. And for the moderate 
+negative correlations we have for example citric acid & volatile acidity, 
+pH & fixed acidity.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+
+bp1 <- ggplot(aes(x = pH, y = alcohol), data = rwine) +
+  geom_point() +
+  geom_smooth(method = 'lm', color = 'red')
+
+bp1
+  
+
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(rwine$pH, rwine$alcohol, method = 'pearson')
+
+```
+
+There is no meningful relation between the two variables since the 
+correlation value is 0.2
+ 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+bp2 <- ggplot(aes(x = chlorides, y = alcohol), data = rwine) +
+  geom_point() +
+  geom_smooth(method = 'lm', color = 'red')
+  
+bp2
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(rwine$chlorides, rwine$alcohol, method = 'pearson')
+
+```
+
+There is no meningful relation between the two variables since the 
+correlation value is -0.2
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+bp3 <- ggplot(aes(x = chlorides, y = pH), data = rwine) +
+  geom_point() +
+  geom_smooth(method = 'lm', color = 'red')
+  
+bp3
+
+
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(rwine$chlorides, rwine$pH, method = 'pearson')
+
+```
+
+There is no meningful relation between the two variables since the 
+correlation value is -0.2
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+bp4 <- ggplot(aes(x = density, y = pH), data = rwine) +
+  geom_point() +
+  geom_smooth(method = 'lm', color = 'red')
+  
+bp4
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(rwine$density, rwine$pH, method = 'pearson')
+
+```
+
+There's a small negative  correlation between the two variables
+
+```{r message=FALSE, warning=FALSE}
+
+bp5 <- ggplot(aes(x = density, y = alcohol), data = rwine) +
+  geom_point(alpha = .5, position = position_jitter(h = 0)) +
+  geom_smooth(method = 'lm', color = 'red')
+
+bp5
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(rwine$density, rwine$alcohol, method = 'pearson')
+
+```
+
+There's a moderate negative  correlation between the two variables
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+bp6 <- ggplot(data = rwine, aes(x = quality, y = fixed.acidity)) +
+  geom_boxplot()
+  
+bp6
+
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+cor.test(as.numeric(rwine$quality), rwine$fixed.acidity, method = 'pearson')
+
+```
+
+The median values are close to each others except for 7 which comes higher 
+than the rest
+
+```{r}
+
+bp7 <- ggplot(data=rwine, aes(x=quality, y=alcohol)) +
+  geom_boxplot()
+
+bp7
+
+```
+
+the more quality goes up, the more alcohol increase
+
+```{r}
+
+grid.arrange(bp1 , bp2, bp3, bp4, bp5, bp6, bp7, ncol =3)
+
+```
+
+# Showing the 7 graphs altogether
+
+
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \ investigation. How did the feature(s) of interest vary with other features in \the dataset?
+Some of them have moderate correlations while others have no correlations. Also,
+there are no strong correlations found between any of the varaibles
+
+### Did you observe any interesting relationships between the other features \ (not the main feature(s) of interest)?
+I notice that there's a moderate negative correlation between citric acid &
+volatile acidity
+
+### What was the strongest relationship you found?
+the strongest is between pH and fixed acidity (moderate negative with -0.68
+correlation factor)
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots, message=FALSE, warning=FALSE}
+
+mv1 <- ggplot(data = rwine,
+       aes(y = fixed.acidity, x = pH,
+           color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+
+mv1
+  
+fmv1 <- ggplot(aes(y = fixed.acidity, x = pH), data = subset(rwine, quality <=5)) +
+  geom_line(aes(color = quality), stat= 'summary', fun.y=median)
+  
+fmv2 <- ggplot(aes(y = fixed.acidity, x = pH), data = subset(rwine, quality >5)) +
+  geom_line(aes(color = quality), stat= 'summary', fun.y=median)
+
+grid.arrange(fmv1, fmv2, ncol =2)
+
+```
+
+Alot of flactuations and intersections between different wine qualities
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv2 <- ggplot(data = rwine,
+       aes(y = fixed.acidity, x = citric.acid,
+           color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+  
+mv2
+
+cmv1 <- ggplot(aes(y = fixed.acidity, x = citric.acid), 
+               data = subset(rwine, quality <=5)) +
+  geom_line(aes(color = quality), stat= 'summary', fun.y=median)
+  
+cmv2 <- ggplot(aes(y = fixed.acidity, x = citric.acid), 
+               data = subset(rwine, quality >5)) +
+  geom_line(aes(color = quality), stat= 'summary', fun.y=median)
+  
+grid.arrange(cmv1, cmv2, ncol =2)
+
+```
+Alot of flactuations except for wine with the lowest quality
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv3 <- ggplot(data = rwine, aes(y = fixed.acidity,
+                                x = density, color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+
+mv3
+
+```
+
+alternative plot of the same variables
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+amv1 <- ggplot(aes(y = fixed.acidity, x = density),
+               data = subset(rwine, quality <=8)) +
+  geom_point(aes(color = quality), stat= 'summary', fun.y=median)
+
+amv1
+
+```
+
+seems that red wine with high fixed acidity tend to have better quality than
+most of the red wine with low quality
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv4 <- ggplot(data = rwine, aes(y = pH, x = alcohol, color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+
+mv4
+
+```
+  
+There's no clear correlation in this graph
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv5 <- ggplot(data = rwine, aes(y = chlorides, x = alcohol, color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+
+mv5
+
+```
+
+There's no clear correlation in this graph 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv6 <- ggplot(data = rwine, aes(y = density, x = alcohol, color = quality)) +
+  geom_point() +
+  scale_color_brewer()
+
+mv6
+
+```
+
+There's no clear correlation in this graph 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+mv7 <- ggplot(data = rwine, aes(y = density, x = pH, color = quality)) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  facet_wrap(~rating) +
+  scale_color_brewer()
+
+mv7
+  
+ggplot(aes(y = fixed.acidity, x = density), data = subset(rwine, quality <=8)) +
+  geom_smooth(aes(color = quality))
+
+```
+
+There's no clear correlation in this graph 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+grid.arrange(mv1 , mv2, mv3, mv4, mv5, mv6, mv7, ncol =2)
+
+```
+
+
+
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \ investigation. Were there features that strengthened each other in terms of \ looking at your feature(s) of interest?
+I used quality as the 3rd variable for the plots and in most of the graphs, 
+I can say that quality doesn't have a clear corelation
+
+### Were there any interesting or surprising interactions between features?
+No, but I just notice alot of flactuations for some of the plots
+
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+ggplot(data = rwine, aes(y = fixed.acidity, x = density, color = quality)) +
+  geom_point() +
+  scale_color_brewer() +
+  ggtitle("Fixed acidity per density coloured by quality")
+
+```
+
+### Description One: 
+As there is a positive correlation between fixed acidity and density, we can
+also notice that the dots becomes darker as the fixed acidity increases which
+indicates the increase in the quality of the wine
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+ggplot(data = rwine,
+       aes(y = fixed.acidity, x = citric.acid,
+           color = quality)) +
+  geom_point() +
+  scale_color_brewer() +
+  ggtitle("Fixed acidity per citric acid coloured by quality")
+
+```
+
+### Description Two: 
+As there is a moderate positive correlation between fixed acidity and citric
+acid, we can also notice that the dots becomes darker as the citric acid
+increases which indicates the increase in the quality of the wine
+
+
+### Plot Three
+```{r echo=FALSE}
+
+ggplot(data=rwine, aes(x=quality, y=alcohol)) +
+  geom_boxplot() +
+  facet_wrap(~rating) +
+  ggtitle("Alcohol concentration per quality")
+
+```
+
+### Description Three: 
+For most of the times, Alcohol concentration increases along with higher
+quality of the wine
+
+------
+
+# Reflection
+
+### What were some of the struggles that you went through?
+
+Relations were difficult to figure out
+
+### What went well? What was surprising? 
+
+Creating the rating variable was easy and its relation was clear with some of
+the variables like with alcohol
